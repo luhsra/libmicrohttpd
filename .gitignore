@@ -5,7 +5,6 @@ config.rpath
 /test-driver
 /INSTALL
 /libmicrohttpd.pc
-/MHD_config.h.in
 /MHD_config.h
 /MHD_config.h.in~
 /configure.lineno
