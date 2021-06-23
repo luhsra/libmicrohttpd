@@ -1,3 +1,4 @@
+Makefile.in
 Makefile
 .deps
 .libs
@@ -12,6 +13,16 @@ config.rpath
 /config.log
 /app.info
 /debug
+/build-aux/texinfo.tex
+/build-aux/config.sub
+/build-aux/depcomp
+/build-aux/install-sh
+/build-aux/ltmain.sh
+/build-aux/mdate-sh
+/build-aux/test-driver
+/build-aux/config.guess
+/build-aux/compile
+/build-aux/missing
 /exclude
 /autom4te.cache
 /scripts
@@ -22,6 +33,7 @@ config.rpath
 /config.guess
 /.cproject
 /.tgitconfig
+/configure
 /libtool
 /install-sh
 /aclocal.m4
@@ -50,4 +62,3 @@ uncrustify.cfg
 **.dvi
 **.t2d
 src/microhttpd_ws/test_websocket
-*.bc
