@@ -1204,6 +1204,11 @@ call_handlers (struct MHD_Connection *con,
   /* Fast track flag */
   bool on_fasttrack = (con->state == MHD_CONNECTION_INIT);
 
+  bool ARA_handle_read = false;
+  bool ARA_handle_write = false;
+  bool ARA_handle_idle = false;
+  bool ARA_return = false;
+
 #ifdef HTTPS_SUPPORT
   if (con->tls_read_ready)
     read_ready = true;
@@ -1213,8 +1218,8 @@ call_handlers (struct MHD_Connection *con,
     if ( (MHD_EVENT_LOOP_INFO_READ == con->event_loop_info) &&
          read_ready)
     {
-      MHD_connection_handle_read (con);
-      ret = MHD_connection_handle_idle (con);
+      ARA_handle_read = true;
+      ARA_handle_idle = true;
       states_info_processed = true;
     }
     /* No need to check value of 'ret' here as closed connection
@@ -1222,23 +1227,41 @@ call_handlers (struct MHD_Connection *con,
     if ( (MHD_EVENT_LOOP_INFO_WRITE == con->event_loop_info) &&
          write_ready)
     {
-      MHD_connection_handle_write (con);
-      ret = MHD_connection_handle_idle (con);
+      ARA_handle_write = true;
+      ARA_handle_idle = true;
       states_info_processed = true;
     }
   }
   else
   {
-    MHD_connection_close_ (con,
-                           MHD_REQUEST_TERMINATED_WITH_ERROR);
-    return MHD_connection_handle_idle (con);
+    ARA_return = true;
+    ARA_handle_idle = true;
   }
 
-  if (! states_info_processed)
+  if (!ARA_return && !states_info_processed)
   {   /* Connection is not read or write ready, but external conditions
        * may be changed and need to be processed. */
+    ARA_handle_idle = true;
+  }
+
+  // ARA Mod: Make sure to call functions only the times there actually called.
+  if (ARA_handle_read) {
+    MHD_connection_handle_read (con);
+  }
+  else if (ARA_handle_write) {
+    MHD_connection_handle_write (con);
+  }
+  if (ARA_return) {
+    MHD_connection_close_ (con,
+                        MHD_REQUEST_TERMINATED_WITH_ERROR);
+  }
+  if (ARA_handle_idle) {
     ret = MHD_connection_handle_idle (con);
   }
+  if (ARA_return) {
+    return ret;
+  }
+
   /* Fast track for fast connections. */
   /* If full request was read by single read_handler() invocation
      and headers were completely prepared by single MHD_connection_handle_idle()
@@ -1249,21 +1272,16 @@ call_handlers (struct MHD_Connection *con,
      only for non-blocking sockets. */
   /* No need to check 'ret' as connection is always in
    * MHD_CONNECTION_CLOSED state if 'ret' is equal 'MHD_NO'. */
-  else if (on_fasttrack && con->sk_nonblck)
+  if (states_info_processed && on_fasttrack && con->sk_nonblck)
   {
-    if (MHD_CONNECTION_HEADERS_SENDING == con->state)
-    {
-      MHD_connection_handle_write (con);
-      /* Always call 'MHD_connection_handle_idle()' after each read/write. */
-      ret = MHD_connection_handle_idle (con);
-    }
     /* If all headers were sent by single write_handler() and
      * response body is prepared by single MHD_connection_handle_idle()
      * call - continue. */
-    if ((MHD_CONNECTION_NORMAL_BODY_READY == con->state) ||
-        (MHD_CONNECTION_CHUNKED_BODY_READY == con->state))
+    if (MHD_CONNECTION_HEADERS_SENDING == con->state || ((MHD_CONNECTION_NORMAL_BODY_READY == con->state) ||
+        (MHD_CONNECTION_CHUNKED_BODY_READY == con->state)))
     {
       MHD_connection_handle_write (con);
+      /* Always call 'MHD_connection_handle_idle()' after each read/write. */
       ret = MHD_connection_handle_idle (con);
     }
   }
