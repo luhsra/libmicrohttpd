@@ -84,6 +84,8 @@
  */
 #define MHD_POOL_SIZE_DEFAULT (32 * 1024)
 
+// Allow only one static Daemon
+struct MHD_Daemon ARA_static_daemon;
 
 /* Forward declarations. */
 
@@ -5283,7 +5285,8 @@ close_connection (struct MHD_Connection *pos)
 static MHD_THRD_RTRN_TYPE_ MHD_THRD_CALL_SPEC_
 MHD_polling_thread (void *cls)
 {
-  struct MHD_Daemon *daemon = cls;
+  // propagate daemon over thread boundary
+  struct MHD_Daemon *daemon = /*cls;*/ &ARA_static_daemon;
 #ifdef HAVE_PTHREAD_SIGMASK
   sigset_t s_mask;
   int err;
@@ -6414,8 +6417,9 @@ MHD_start_daemon_va (unsigned int flags,
     }
   }
 
-  if (NULL == (daemon = MHD_calloc_ (1, sizeof (struct MHD_Daemon))))
-    return NULL;
+  daemon = &ARA_static_daemon; // Only one static daemon
+  //if (NULL == (daemon = MHD_calloc_ (1, sizeof (struct MHD_Daemon))))
+  //  return NULL;
 #ifdef EPOLL_SUPPORT
   daemon->epoll_fd = -1;
 #if defined(HTTPS_SUPPORT) && defined(UPGRADE_SUPPORT)
@@ -7722,7 +7726,8 @@ MHD_stop_daemon (struct MHD_Daemon *daemon)
 #if defined(MHD_USE_POSIX_THREADS) || defined(MHD_USE_W32_THREADS)
     MHD_mutex_destroy_chk_ (&daemon->per_ip_connection_mutex);
 #endif
-    free (daemon);
+    // ARA Mod: Daemon is static 
+    //free (daemon);
   }
 }
 
