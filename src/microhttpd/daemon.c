@@ -5309,13 +5309,14 @@ MHD_polling_thread (void *cls)
 #endif /* HAVE_PTHREAD_SIGMASK */
   while (! daemon->shutdown)
   {
-    if (0 != (daemon->options & MHD_USE_POLL))
+    // ARA Mod: Choose MHD_select as method
+    /*if (0 != (daemon->options & MHD_USE_POLL))
       MHD_poll (daemon, MHD_YES);
 #ifdef EPOLL_SUPPORT
     else if (0 != (daemon->options & MHD_USE_EPOLL))
       MHD_epoll (daemon, -1);
 #endif
-    else
+    else*/
       MHD_select (daemon, -1);
     MHD_cleanup_connections (daemon);
   }
