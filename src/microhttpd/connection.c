@@ -830,8 +830,10 @@ connection_close_error (struct MHD_Connection *connection,
 #else  /* ! HAVE_MESSAGES */
   (void) emsg; /* Mute compiler warning. */
 #endif /* ! HAVE_MESSAGES */
-  MHD_connection_close_ (connection,
-                         MHD_REQUEST_TERMINATED_WITH_ERROR);
+  // ARA Mod: Kill application immediate if error occurred.
+  //MHD_connection_close_ (connection,
+  //                       MHD_REQUEST_TERMINATED_WITH_ERROR);
+  abort();
 }
 
 
@@ -1682,6 +1684,9 @@ transmit_error_response_len (struct MHD_Connection *connection,
                              const char *message,
                              size_t message_len)
 {
+  // ARA Mod: Just abort() do not transmit the error
+  abort();
+  #if 0
   struct MHD_Response *response;
   enum MHD_Result iret;
 
@@ -1744,6 +1749,7 @@ transmit_error_response_len (struct MHD_Connection *connection,
   {
     connection->state = MHD_CONNECTION_HEADERS_SENDING;
   }
+  #endif
 }
 
 
