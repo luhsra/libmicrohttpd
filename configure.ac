@@ -1307,8 +1307,9 @@ AC_INCLUDES_DEFAULT
         ]])
       ], [[mhd_cv_pipe2_usable='yes']], [[mhd_cv_pipe2_usable='no']])
     ])
-    AS_VAR_IF([[mhd_cv_pipe2_usable]], [["yes"]],
-      [AC_DEFINE([[HAVE_PIPE2_FUNC]], [[1]], [Define if you have usable pipe2(2) function])])
+    # ARA Mod: Always use pipe() and not non portable pipe2()
+    #AS_VAR_IF([[mhd_cv_pipe2_usable]], [["yes"]],
+    #  [AC_DEFINE([[HAVE_PIPE2_FUNC]], [[1]], [Define if you have usable pipe2(2) function])])
   ], [
     AS_VAR_IF([[enable_itc]], [["pipe"]], [AC_MSG_ERROR([[pipe(3) is not usable, consider using other type of inter-thread communication]])])
   ])
