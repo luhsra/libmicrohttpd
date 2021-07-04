@@ -88,7 +88,7 @@
 struct MHD_Daemon ARA_static_daemon;
 
 // propagate MHD_Connection* to thread entry point thread_main_handle_connection
-struct MHD_Connection *ARA_connection_to_thread;
+struct MHD_Connection ARA_connection_to_thread;
 MHD_mutex_ ARA_connection_to_thread_mutex;
 
 /* Forward declarations. */
@@ -1884,7 +1884,8 @@ static MHD_THRD_RTRN_TYPE_ MHD_THRD_CALL_SPEC_
 thread_main_handle_connection (void *data)
 {
   (void) data;
-  struct MHD_Connection *con = ARA_connection_to_thread;
+  struct MHD_Connection *con = MHD_calloc_(1, sizeof (struct MHD_Connection));
+  memcpy(con, &ARA_connection_to_thread, sizeof (struct MHD_Connection));
   MHD_mutex_unlock_(&ARA_connection_to_thread_mutex);
   struct MHD_Daemon *daemon = con->daemon;
   int num_ready;
@@ -2802,7 +2803,7 @@ new_connection_process_ (struct MHD_Daemon *daemon,
   if (0 != (daemon->options & MHD_USE_THREAD_PER_CONNECTION))
   {
     MHD_mutex_lock_(&ARA_connection_to_thread_mutex);
-    ARA_connection_to_thread = connection;
+    memcpy(&ARA_connection_to_thread, connection, sizeof (struct MHD_Connection));
     if (! MHD_create_named_thread_ (&connection->pid,
                                     "MHD-connection",
                                     daemon->thread_stack_size,
@@ -6334,6 +6335,7 @@ MHD_start_daemon_va (unsigned int flags,
                      void *dh_cls,
                      va_list ap)
 {
+  MHD_mutex_init_(&ARA_connection_to_thread_mutex);
   const MHD_SCKT_OPT_BOOL_ on = 1;
   struct MHD_Daemon *daemon;
   MHD_socket listen_fd;
