@@ -2080,7 +2080,17 @@ struct MHD_Daemon
  * @param tail pointer to the tail of the DLL
  * @param element element to insert
  */
-void DLL_insert(struct MHD_Connection *head, struct MHD_Connection *tail, struct MHD_Connection *element);
+#define DLL_insert(head,tail,element) do { \
+    mhd_assert (NULL == (element)->next); \
+    mhd_assert (NULL == (element)->prev); \
+    (element)->next = (head);       \
+    (element)->prev = NULL;         \
+    if ((tail) == NULL) {           \
+      (tail) = element;             \
+    } else {                        \
+      (head)->prev = element;       \
+    }                               \
+    (head) = (element); } while (0)
 
 
 /**
@@ -2092,7 +2102,21 @@ void DLL_insert(struct MHD_Connection *head, struct MHD_Connection *tail, struct
  * @param tail pointer to the tail of the DLL
  * @param element element to remove
  */
-void DLL_remove(struct MHD_Connection *head, struct MHD_Connection *tail, struct MHD_Connection *element);
+#define DLL_remove(head,tail,element) do { \
+    mhd_assert ( (NULL != (element)->next) || ((element) == (tail)));  \
+    mhd_assert ( (NULL != (element)->prev) || ((element) == (head)));  \
+    if ((element)->prev == NULL) {                                     \
+      (head) = (element)->next;                \
+    } else {                                   \
+      (element)->prev->next = (element)->next; \
+    }                                          \
+    if ((element)->next == NULL) {             \
+      (tail) = (element)->prev;                \
+    } else {                                   \
+      (element)->next->prev = (element)->prev; \
+    }                                          \
+    (element)->next = NULL;                    \
+    (element)->prev = NULL; } while (0)
 
 
 /**
@@ -2103,7 +2127,17 @@ void DLL_remove(struct MHD_Connection *head, struct MHD_Connection *tail, struct
  * @param tail pointer to the tail of the XDLL
  * @param element element to insert
  */
-void XDLL_insert(struct MHD_Connection *head, struct MHD_Connection *tail, struct MHD_Connection *element);
+#define XDLL_insert(head,tail,element) do { \
+    mhd_assert (NULL == (element)->nextX); \
+    mhd_assert (NULL == (element)->prevX); \
+    (element)->nextX = (head);     \
+    (element)->prevX = NULL;       \
+    if (NULL == (tail)) {          \
+      (tail) = element;            \
+    } else {                       \
+      (head)->prevX = element;     \
+    }                              \
+    (head) = (element); } while (0)
 
 
 /**
@@ -2115,7 +2149,21 @@ void XDLL_insert(struct MHD_Connection *head, struct MHD_Connection *tail, struc
  * @param tail pointer to the tail of the XDLL
  * @param element element to remove
  */
-void XDLL_remove(struct MHD_Connection *head, struct MHD_Connection *tail, struct MHD_Connection *element);
+#define XDLL_remove(head,tail,element) do { \
+    mhd_assert ( (NULL != (element)->nextX) || ((element) == (tail)));  \
+    mhd_assert ( (NULL != (element)->prevX) || ((element) == (head)));  \
+    if (NULL == (element)->prevX) {                                     \
+      (head) = (element)->nextX;                  \
+    } else {                                      \
+      (element)->prevX->nextX = (element)->nextX; \
+    }                                             \
+    if (NULL == (element)->nextX) {               \
+      (tail) = (element)->prevX;                  \
+    } else {                                      \
+      (element)->nextX->prevX = (element)->prevX; \
+    }                                             \
+    (element)->nextX = NULL;                      \
+    (element)->prevX = NULL; } while (0)
 
 
 /**
@@ -2126,8 +2174,15 @@ void XDLL_remove(struct MHD_Connection *head, struct MHD_Connection *tail, struc
  * @param tail pointer to the tail of the EDLL
  * @param element element to insert
  */
-#ifdef EPOLL_SUPPORT
-void EDLL_insert(struct MHD_Connection *head, struct MHD_Connection *tail, struct MHD_Connection *element);
+#define EDLL_insert(head,tail,element) do { \
+    (element)->nextE = (head); \
+    (element)->prevE = NULL;   \
+    if ((tail) == NULL) {      \
+      (tail) = element;        \
+    } else {                   \
+      (head)->prevE = element; \
+    }                          \
+    (head) = (element); } while (0)
 
 
 /**
@@ -2139,8 +2194,20 @@ void EDLL_insert(struct MHD_Connection *head, struct MHD_Connection *tail, struc
  * @param tail pointer to the tail of the EDLL
  * @param element element to remove
  */
-void EDLL_remove(struct MHD_Connection *head, struct MHD_Connection *tail, struct MHD_Connection *element);
-#endif
+#define EDLL_remove(head,tail,element) do {       \
+    if ((element)->prevE == NULL) {               \
+      (head) = (element)->nextE;                  \
+    } else {                                      \
+      (element)->prevE->nextE = (element)->nextE; \
+    }                                             \
+    if ((element)->nextE == NULL) {               \
+      (tail) = (element)->prevE;                  \
+    } else {                                      \
+      (element)->nextE->prevE = (element)->prevE; \
+    }                                             \
+    (element)->nextE = NULL;                      \
+    (element)->prevE = NULL; } while (0)
+
 
 /**
  * Convert all occurrences of '+' to ' '.

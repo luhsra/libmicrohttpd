@@ -6305,9 +6305,6 @@ setup_epoll_to_listen (struct MHD_Daemon *daemon)
 
 #endif
 
-void _ARA_libmicrohttpd_set_unescape_wrapper_(struct MHD_Daemon *daemon) {
-  daemon->unescape_callback = &unescape_wrapper;
-}
 
 /**
  * Start a webserver on the given port.
@@ -6470,7 +6467,7 @@ MHD_start_daemon_va (unsigned int flags,
   daemon->connection_limit = MHD_MAX_CONNECTIONS_DEFAULT;
   daemon->pool_size = MHD_POOL_SIZE_DEFAULT;
   daemon->pool_increment = MHD_BUF_INC_SIZE;
-  _ARA_libmicrohttpd_set_unescape_wrapper_(daemon);
+  daemon->unescape_callback = &unescape_wrapper;
   daemon->connection_timeout = 0;       /* no timeout */
   MHD_itc_set_invalid_ (daemon->itc);
 #ifdef SOMAXCONN
