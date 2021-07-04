@@ -3918,6 +3918,7 @@ MHD_get_timeout (struct MHD_Daemon *daemon,
 }
 
 
+#if 0
 /**
  * Obtain timeout value for polling function for this daemon.
  * @remark To be called only from the thread that processes
@@ -3945,6 +3946,7 @@ get_timeout_millisec_ (struct MHD_Daemon *daemon,
 
   return (INT_MAX < max_timeout) ? INT_MAX : (int) max_timeout;
 }
+#endif
 
 
 /**
@@ -4613,6 +4615,7 @@ MHD_poll_listen_socket (struct MHD_Daemon *daemon,
 #endif
 
 
+#if 0
 /**
  * Do poll()-based processing.
  *
@@ -4638,6 +4641,7 @@ MHD_poll (struct MHD_Daemon *daemon,
   return MHD_NO;
 #endif
 }
+#endif
 
 
 #ifdef EPOLL_SUPPORT
@@ -6346,7 +6350,7 @@ MHD_start_daemon_va (unsigned int flags,
   const struct sockaddr *servaddr = NULL;
   socklen_t addrlen;
 #if defined(MHD_USE_POSIX_THREADS) || defined(MHD_USE_W32_THREADS)
-  unsigned int i;
+  //unsigned int i;
 #endif
   enum MHD_FLAG eflags; /* same type as in MHD_Daemon */
   enum MHD_FLAG *pflags;
@@ -6650,7 +6654,7 @@ MHD_start_daemon_va (unsigned int flags,
               _ (
                 "MHD thread polling only works with MHD_USE_INTERNAL_POLLING_THREAD.\n"));
 #endif
-    goto free_and_fail;
+    abort ();
   }
 #endif
   if ( (MHD_INVALID_SOCKET == daemon->listen_fd) &&
@@ -6663,7 +6667,7 @@ MHD_start_daemon_va (unsigned int flags,
     domain = (*pflags & MHD_USE_IPv6) ? PF_INET6 : PF_INET;
 #else  /* ! HAVE_INET6 */
     if (*pflags & MHD_USE_IPv6)
-      goto free_and_fail;
+      abort ();
     domain = PF_INET;
 #endif /* ! HAVE_INET6 */
 
@@ -6675,7 +6679,7 @@ MHD_start_daemon_va (unsigned int flags,
                 _ ("Failed to create socket for listening: %s\n"),
                 MHD_socket_last_strerr_ ());
 #endif
-      goto free_and_fail;
+      abort ();
     }
 
     /* Apply the socket options according to listening_address_reuse. */
@@ -6738,7 +6742,7 @@ MHD_start_daemon_va (unsigned int flags,
                   _ ("setsockopt failed: %s\n"),
                   MHD_socket_last_strerr_ ());
 #endif
-        goto free_and_fail;
+        abort ();
       }
 #else  /* !MHD_WINSOCK_SOCKETS && !SO_REUSEPORT */
       /* we're supposed to allow address:port re-use, but
@@ -6748,7 +6752,7 @@ MHD_start_daemon_va (unsigned int flags,
                 _ (
                   "Cannot allow listening address reuse: SO_REUSEPORT not defined.\n"));
 #endif
-      goto free_and_fail;
+      abort ();
 #endif /* !MHD_WINSOCK_SOCKETS && !SO_REUSEPORT */
     }
     else   /* if (daemon->listening_address_reuse < 0) */
@@ -6776,7 +6780,7 @@ MHD_start_daemon_va (unsigned int flags,
                   _ ("setsockopt failed: %s\n"),
                   MHD_socket_last_strerr_ ());
 #endif
-        goto free_and_fail;
+        abort ();
       }
 #elif defined(MHD_WINSOCK_SOCKETS) /* SO_EXCLUSIVEADDRUSE not defined on W32? */
 #ifdef HAVE_MESSAGES
@@ -6784,7 +6788,7 @@ MHD_start_daemon_va (unsigned int flags,
                 _ (
                   "Cannot disallow listening address reuse: SO_EXCLUSIVEADDRUSE not defined.\n"));
 #endif
-      goto free_and_fail;
+      abort ();
 #endif /* MHD_WINSOCK_SOCKETS */
     }
 
@@ -6866,7 +6870,7 @@ MHD_start_daemon_va (unsigned int flags,
                 MHD_socket_last_strerr_ ());
 #endif
       MHD_socket_close_chk_ (listen_fd);
-      goto free_and_fail;
+      abort ();
     }
 #ifdef TCP_FASTOPEN
     if (0 != (*pflags & MHD_USE_TCP_FASTOPEN))
@@ -6896,7 +6900,7 @@ MHD_start_daemon_va (unsigned int flags,
                 MHD_socket_last_strerr_ ());
 #endif
       MHD_socket_close_chk_ (listen_fd);
-      goto free_and_fail;
+      abort ();
     }
   }
   else
@@ -7001,7 +7005,7 @@ MHD_start_daemon_va (unsigned int flags,
        * to handle a new connection, but only one will win the race.
        * The others must immediately return. */
       MHD_socket_close_chk_ (listen_fd);
-      goto free_and_fail;
+      abort ();
     }
   }
   if ( (MHD_INVALID_SOCKET != listen_fd) &&
@@ -7017,7 +7021,7 @@ MHD_start_daemon_va (unsigned int flags,
               (int) FD_SETSIZE);
 #endif
     MHD_socket_close_chk_ (listen_fd);
-    goto free_and_fail;
+    abort ();
   }
 
 #ifdef EPOLL_SUPPORT
@@ -7034,10 +7038,10 @@ MHD_start_daemon_va (unsigned int flags,
                 _ (
                   "Combining MHD_USE_THREAD_PER_CONNECTION and MHD_USE_EPOLL is not supported.\n"));
 #endif
-      goto free_and_fail;
+      abort ();
     }
     if (MHD_NO == setup_epoll_to_listen (daemon))
-      goto free_and_fail;
+      abort ();
   }
 #endif /* EPOLL_SUPPORT */
 
@@ -7050,7 +7054,7 @@ MHD_start_daemon_va (unsigned int flags,
 #endif
     if (MHD_INVALID_SOCKET != listen_fd)
       MHD_socket_close_chk_ (listen_fd);
-    goto free_and_fail;
+    abort ();
   }
   if (! MHD_mutex_init_ (&daemon->cleanup_connection_mutex))
   {
@@ -7063,7 +7067,7 @@ MHD_start_daemon_va (unsigned int flags,
 #endif
     if (MHD_INVALID_SOCKET != listen_fd)
       MHD_socket_close_chk_ (listen_fd);
-    goto free_and_fail;
+    abort ();
   }
 #endif
 
@@ -7082,7 +7086,7 @@ MHD_start_daemon_va (unsigned int flags,
     MHD_mutex_destroy_chk_ (&daemon->cleanup_connection_mutex);
     MHD_mutex_destroy_chk_ (&daemon->per_ip_connection_mutex);
 #endif
-    goto free_and_fail;
+    abort ();
   }
 #endif /* HTTPS_SUPPORT */
 #if defined(MHD_USE_POSIX_THREADS) || defined(MHD_USE_W32_THREADS)
@@ -7113,7 +7117,7 @@ MHD_start_daemon_va (unsigned int flags,
         MHD_mutex_destroy_chk_ (&daemon->per_ip_connection_mutex);
         if (MHD_INVALID_SOCKET != listen_fd)
           MHD_socket_close_chk_ (listen_fd);
-        goto free_and_fail;
+        abort ();
       }
       if (! MHD_create_named_thread_ (&daemon->pid,
                                       (*pflags
@@ -7133,7 +7137,7 @@ MHD_start_daemon_va (unsigned int flags,
         MHD_mutex_destroy_chk_ (&daemon->per_ip_connection_mutex);
         if (MHD_INVALID_SOCKET != listen_fd)
           MHD_socket_close_chk_ (listen_fd);
-        goto free_and_fail;
+        abort ();
       }
     }
     // ARA Mod: daemon->worker_pool_size always == 0
@@ -7276,7 +7280,7 @@ MHD_start_daemon_va (unsigned int flags,
       MHD_DLOG (daemon,
                 _ ("Failed to initialise mutex.\n"));
 #endif
-      goto free_and_fail;
+      abort ();
     }
   }
 #endif
@@ -7288,6 +7292,8 @@ MHD_start_daemon_va (unsigned int flags,
 
   return daemon;
 
+// ARA Mod: Remove Error Handling
+#if 0
 #if defined(MHD_USE_POSIX_THREADS) || defined(MHD_USE_W32_THREADS)
 thread_failed:
   /* If no worker threads created, then shut down normally. Calling
@@ -7301,7 +7307,7 @@ thread_failed:
     MHD_mutex_destroy_chk_ (&daemon->per_ip_connection_mutex);
     if (NULL != daemon->worker_pool)
       free (daemon->worker_pool);
-    goto free_and_fail;
+    abort ();
   }
 
   /* Shutdown worker threads we've already created. Pretend
@@ -7355,6 +7361,7 @@ free_and_fail:
     MHD_itc_destroy_chk_ (daemon->itc);
   free (daemon);
   return NULL;
+  #endif
 }
 
 
