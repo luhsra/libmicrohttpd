@@ -7134,6 +7134,8 @@ MHD_start_daemon_va (unsigned int flags,
         goto free_and_fail;
       }
     }
+    // ARA Mod: daemon->worker_pool_size always == 0
+    #if 0
     else   /* 0 < daemon->worker_pool_size */
     {
       /* Coarse-grained count of connections per thread (note error
@@ -7262,6 +7264,7 @@ MHD_start_daemon_va (unsigned int flags,
         }
       }
     }
+    #endif
   }
   else
   { /* Daemon without internal threads */
