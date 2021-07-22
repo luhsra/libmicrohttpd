@@ -65,3 +65,5 @@ uncrustify.cfg
 src/microhttpd_ws/test_websocket
 *.bc
 .conftest.o
+.pthread_name.o
+pthread_name.o
