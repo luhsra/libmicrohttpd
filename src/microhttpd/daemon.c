@@ -87,10 +87,6 @@
 // Allow only one static Daemon
 struct MHD_Daemon ARA_static_daemon;
 
-// propagate MHD_Connection* to thread entry point thread_main_handle_connection
-struct MHD_Connection *ARA_connection_to_thread;
-MHD_mutex_ ARA_connection_to_thread_mutex;
-
 /* Forward declarations. */
 
 /**
@@ -1883,10 +1879,7 @@ thread_main_connection_upgrade (struct MHD_Connection *con)
 static MHD_THRD_RTRN_TYPE_ MHD_THRD_CALL_SPEC_
 thread_main_handle_connection (void *data)
 {
-  (void) data;
-  struct MHD_Connection *con = ARA_connection_to_thread;
-  MHD_mutex_unlock_(&ARA_connection_to_thread_mutex);
-  //struct MHD_Daemon *daemon = con->daemon;
+  struct MHD_Connection *con = data;
   struct MHD_Daemon *daemon = &ARA_static_daemon;
   int num_ready;
   fd_set rs;
@@ -2802,8 +2795,6 @@ new_connection_process_ (struct MHD_Daemon *daemon,
   /* attempt to create handler thread */
   if (0 != (daemon->options & MHD_USE_THREAD_PER_CONNECTION))
   {
-    MHD_mutex_lock_(&ARA_connection_to_thread_mutex);
-    ARA_connection_to_thread = connection;
     if (! MHD_create_named_thread_ (&connection->pid,
                                     "MHD-connection",
                                     daemon->thread_stack_size,
@@ -5301,7 +5292,6 @@ close_connection (struct MHD_Connection *pos)
 static MHD_THRD_RTRN_TYPE_ MHD_THRD_CALL_SPEC_
 MHD_polling_thread (void *cls)
 {
-  (void) cls;
   // propagate daemon over thread boundary
   struct MHD_Daemon *daemon = /*cls;*/ &ARA_static_daemon;
 #ifdef HAVE_PTHREAD_SIGMASK
@@ -7124,7 +7114,7 @@ MHD_start_daemon_va (unsigned int flags,
                                       "MHD-listen" : "MHD-single",
                                       daemon->thread_stack_size,
                                       &MHD_polling_thread,
-                                      NULL) )
+                                      daemon) )
       {
 #ifdef HAVE_MESSAGES
         MHD_DLOG (daemon,
