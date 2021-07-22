@@ -69,7 +69,8 @@
 */
 #define AUTOINIT_FUNCS_VERSION 0x01000200
 
-#if defined(__GNUC__) || defined(__clang__)
+//#if defined(__GNUC__) || defined(__clang__)
+#if 0
 /* if possible - check for supported attribute */
 #ifdef __has_attribute
 #if ! __has_attribute (constructor) || ! __has_attribute (destructor)
@@ -80,9 +81,10 @@
 
 /* "_attribute__ ((constructor))" is supported by GCC, clang and
    Sun/Oracle compiler starting from version 12.1. */
-#if ((defined(__GNUC__) || defined(__clang__)) && \
+//#if ((defined(__GNUC__) || defined(__clang__)) && \
   ! defined(_GNUC_ATTR_CONSTR_NOT_SUPPORTED)) || \
   (defined(__SUNPRO_C) && __SUNPRO_C + 0 >= 0x5100)
+#if 0
 
 #define GNUC_SET_INIT_AND_DEINIT(FI,FD) \
   void __attribute__ ((constructor)) _GNUC_init_helper_ ## FI (void) \
@@ -94,7 +96,7 @@
 #define _SET_INIT_AND_DEINIT_FUNCS(FI,FD) GNUC_SET_INIT_AND_DEINIT (FI,FD)
 #define _AUTOINIT_FUNCS_ARE_SUPPORTED 1
 
-#elif defined (_MSC_FULL_VER) && _MSC_VER + 0 >= 1600
+//#elif defined (_MSC_FULL_VER) && _MSC_VER + 0 >= 1600
 
 /* Make sure that your project/sources define:
    _LIB if building a static library (_LIB is ignored if _CONSOLE is defined);
