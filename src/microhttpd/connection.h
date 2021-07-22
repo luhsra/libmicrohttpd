@@ -76,6 +76,7 @@
  */
 #define MHD_ERR_TLS_ (-4097)
 
+extern struct MHD_Daemon ARA_static_daemon;
 
 /**
  * Set callbacks for this connection to those for HTTP.

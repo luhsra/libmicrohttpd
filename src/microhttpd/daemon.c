@@ -1887,7 +1887,8 @@ thread_main_handle_connection (void *data)
   struct MHD_Connection *con = MHD_calloc_(1, sizeof (struct MHD_Connection));
   memcpy(con, &ARA_connection_to_thread, sizeof (struct MHD_Connection));
   MHD_mutex_unlock_(&ARA_connection_to_thread_mutex);
-  struct MHD_Daemon *daemon = con->daemon;
+  //struct MHD_Daemon *daemon = con->daemon;
+  struct MHD_Daemon *daemon = &ARA_static_daemon;
   int num_ready;
   fd_set rs;
   fd_set ws;
@@ -3070,7 +3071,8 @@ new_connections_list_process_ (struct MHD_Daemon *daemon)
 void
 internal_suspend_connection_ (struct MHD_Connection *connection)
 {
-  struct MHD_Daemon *daemon = connection->daemon;
+  //struct MHD_Daemon *daemon = connection->daemon;
+  struct MHD_Daemon *daemon = &ARA_static_daemon;
 
 #if defined(MHD_USE_POSIX_THREADS) || defined(MHD_USE_W32_THREADS)
   mhd_assert ( (0 == (daemon->options & MHD_USE_INTERNAL_POLLING_THREAD)) || \
@@ -3168,7 +3170,8 @@ internal_suspend_connection_ (struct MHD_Connection *connection)
 void
 MHD_suspend_connection (struct MHD_Connection *connection)
 {
-  struct MHD_Daemon *const daemon = connection->daemon;
+  //struct MHD_Daemon *const daemon = connection->daemon;
+  struct MHD_Daemon *const daemon = &ARA_static_daemon;
 
 #ifdef MHD_USE_THREADS
   mhd_assert ( (0 == (daemon->options & MHD_USE_INTERNAL_POLLING_THREAD)) || \
@@ -3205,7 +3208,8 @@ MHD_suspend_connection (struct MHD_Connection *connection)
 void
 MHD_resume_connection (struct MHD_Connection *connection)
 {
-  struct MHD_Daemon *daemon = connection->daemon;
+  //struct MHD_Daemon *daemon = connection->daemon;
+  struct MHD_Daemon *daemon = &ARA_static_daemon;
 
   if (0 == (daemon->options & MHD_TEST_ALLOW_SUSPEND_RESUME))
     MHD_PANIC (_ (

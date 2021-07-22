@@ -674,7 +674,8 @@ need_100_continue (struct MHD_Connection *connection)
 void
 MHD_connection_mark_closed_ (struct MHD_Connection *connection)
 {
-  const struct MHD_Daemon *daemon = connection->daemon;
+  //const struct MHD_Daemon *daemon = connection->daemon;
+  const struct MHD_Daemon *daemon = &ARA_static_daemon;
 
   connection->state = MHD_CONNECTION_CLOSED;
   connection->event_loop_info = MHD_EVENT_LOOP_INFO_CLEANUP;
@@ -713,7 +714,8 @@ void
 MHD_connection_close_ (struct MHD_Connection *connection,
                        enum MHD_RequestTerminationCode termination_code)
 {
-  struct MHD_Daemon *daemon = connection->daemon;
+  //struct MHD_Daemon *daemon = connection->daemon;
+  struct MHD_Daemon *daemon = &ARA_static_daemon;
   struct MHD_Response *resp = connection->response;
 
 #ifdef MHD_USE_THREADS
@@ -2283,7 +2285,8 @@ parse_initial_message_line (struct MHD_Connection *connection,
                             char *line,
                             size_t line_len)
 {
-  struct MHD_Daemon *daemon = connection->daemon;
+  //struct MHD_Daemon *daemon = connection->daemon;
+  struct MHD_Daemon *daemon = &ARA_static_daemon;
   const char *curi;
   char *uri;
   char *http_version;
@@ -2406,7 +2409,8 @@ parse_initial_message_line (struct MHD_Connection *connection,
 static void
 call_connection_handler (struct MHD_Connection *connection)
 {
-  struct MHD_Daemon *daemon = connection->daemon;
+  //struct MHD_Daemon *daemon = connection->daemon;
+  struct MHD_Daemon *daemon = &ARA_static_daemon;
   size_t processed;
 
   if (NULL != connection->response)
@@ -2442,7 +2446,8 @@ call_connection_handler (struct MHD_Connection *connection)
 static void
 process_request_body (struct MHD_Connection *connection)
 {
-  struct MHD_Daemon *daemon = connection->daemon;
+  //struct MHD_Daemon *daemon = connection->daemon;
+  struct MHD_Daemon *daemon = &ARA_static_daemon;
   size_t available;
   int instant_retry;
   char *buffer_head;
@@ -2978,7 +2983,8 @@ parse_connection_headers (struct MHD_Connection *connection)
 void
 MHD_update_last_activity_ (struct MHD_Connection *connection)
 {
-  struct MHD_Daemon *daemon = connection->daemon;
+  //struct MHD_Daemon *daemon = connection->daemon;
+  struct MHD_Daemon *daemon = &ARA_static_daemon;
 
   if (0 == connection->connection_timeout)
     return;  /* Skip update of activity for connections
@@ -3467,7 +3473,8 @@ MHD_connection_handle_write (struct MHD_Connection *connection)
 static void
 cleanup_connection (struct MHD_Connection *connection)
 {
-  struct MHD_Daemon *daemon = connection->daemon;
+  //struct MHD_Daemon *daemon = connection->daemon;
+  struct MHD_Daemon *daemon = &ARA_static_daemon;
 #ifdef MHD_USE_THREADS
   mhd_assert ( (0 == (daemon->options & MHD_USE_INTERNAL_POLLING_THREAD)) || \
                MHD_thread_ID_match_current_ (connection->pid) );
@@ -3547,7 +3554,8 @@ cleanup_connection (struct MHD_Connection *connection)
 enum MHD_Result
 MHD_connection_handle_idle (struct MHD_Connection *connection)
 {
-  struct MHD_Daemon *daemon = connection->daemon;
+  //struct MHD_Daemon *daemon = connection->daemon;
+  struct MHD_Daemon *daemon = &ARA_static_daemon;
   char *line;
   size_t line_len;
   enum MHD_Result ret;
@@ -4188,7 +4196,8 @@ MHD_set_connection_option (struct MHD_Connection *connection,
   va_list ap;
   struct MHD_Daemon *daemon;
 
-  daemon = connection->daemon;
+  //daemon = connection->daemon;
+  daemon = &ARA_static_daemon;
   switch (option)
   {
   case MHD_CONNECTION_OPTION_TIMEOUT:
@@ -4253,7 +4262,8 @@ MHD_queue_response (struct MHD_Connection *connection,
 {
   struct MHD_Daemon *daemon;
 
-  daemon = connection->daemon;
+  //daemon = connection->daemon;
+  daemon = &ARA_static_daemon;
 
   if (daemon->shutdown)
     return MHD_YES; /* If daemon was shut down in parallel,
