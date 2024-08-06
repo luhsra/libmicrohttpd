@@ -67,3 +67,5 @@ src/microhttpd_ws/test_websocket
 .conftest.o
 .pthread_name.o
 pthread_name.o
+
+.meson-subproject-wrap-hash.txt
