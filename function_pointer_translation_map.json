@@ -1,0 +1,7 @@
+[
+	{
+		"source_file": "src/microhttpd/response.c",
+		"line_number": 1651,
+		"call_targets": ["dir_free_callback", "file_free_callback"]
+	}
+]
